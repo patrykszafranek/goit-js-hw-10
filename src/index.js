@@ -1,7 +1,8 @@
+'use strict';
 import './css/styles.css';
 import debounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
-import { fetchUsers } from './fetch';
+import { fetchUsers } from './fetchCountries';
 
 const inputCountry = document.querySelector('#search-box');
 const countryList = document.querySelector('.country-list');
@@ -28,25 +29,39 @@ function drawCountryBlock(countries) {
   countryInformation.innerHTML = '';
   countryList.append(...countriesArray);
 }
-
+function onlyLetters(str) {
+  return /^[a-zA-Z\s ]+$/.test(str);
+}
 const inputHandler = () => {
   const country = inputCountry.value;
-  fetchUsers(country)
-    .then(countries => {
-      if (countries.length > 10) {
-        Notiflix.Notify.info(
-          'Too many matches found. Please enter a more specific name.'
-        );
-        return;
-      }
-      if (countries.length === 1) {
-        return drawCountryInfo(countries[0]);
-      }
-      return drawCountryBlock(countries);
-    })
-    .catch(() =>
-      Notiflix.Notify.failure('Oops, there is no country with that name')
-    );
+
+  if (country === '') {
+    countryInformation.innerHTML = '';
+    countryList.innerHTML = '';
+  } else {
+    if (onlyLetters(country)) {
+      fetchUsers(country)
+        .then(countries => {
+          if (countries.length > 10) {
+            Notiflix.Notify.info(
+              'Too many matches found. Please enter a more specific name.'
+            );
+            return;
+          }
+          if (countries.length === 1) {
+            return drawCountryInfo(countries[0]);
+          }
+          return drawCountryBlock(countries);
+        })
+        .catch(() => {
+          countryInformation.innerHTML = '';
+          countryList.innerHTML = '';
+          Notiflix.Notify.failure('Oops, there is no country with that name');
+        });
+    } else {
+      Notiflix.Notify.info('You can use only letters and spaces');
+    }
+  }
 };
 
 inputCountry.addEventListener('input', debounce(inputHandler, DEBOUNCE_DELAY));
