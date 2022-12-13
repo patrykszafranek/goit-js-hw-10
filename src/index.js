@@ -30,7 +30,7 @@ function drawCountryBlock(countries) {
   countryList.append(...countriesArray);
 }
 function onlyLetters(str) {
-  return /^[a-zA-Z\s ]+$/.test(str);
+  return /^[a-zA-Z-\s ]+$/.test(str);
 }
 const inputHandler = () => {
   const country = inputCountry.value;
